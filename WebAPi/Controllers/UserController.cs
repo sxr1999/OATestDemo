@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebAPi.Data;
@@ -10,16 +12,38 @@ namespace WebAPi.Controllers
     public class UserController : ControllerBase
     {
 
-        public readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<IdentityUser> _userManager;
         public UserController(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
         }
 
-        
+        /// <summary>
+        /// 查找用户
+        /// </summary>
+        /// <returns></returns>
+        //[Authorize(AuthenticationSchemes =  JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
+        [HttpGet("{email}")]
+        public async Task<IActionResult> FindUserByName(string email)
+        {
+            var result = await _userManager.FindByEmailAsync(email);
+            if (result!=null)
+            {
+                return Ok(result);
+            }
 
-        [HttpPost]
-        public async Task<IActionResult> AddUser([FromBody]UserDTO userDTO)
+            return NotFound("未找到当前用户");
+        }
+
+        
+        /// <summary>
+        /// 用户登录
+        /// </summary>
+        /// <param name="userDTO"></param>
+        /// <returns></returns>
+        [HttpPost("Register")]
+        public async Task<IActionResult> AddUser([FromBody]UserDto userDTO)
         {
             if (ModelState.IsValid)
             {

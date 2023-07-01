@@ -2,7 +2,7 @@
 
 namespace WebAPi.Data
 {
-    public class UserDTO
+    public class UserDto
     {
         [Required]
         [EmailAddress]
